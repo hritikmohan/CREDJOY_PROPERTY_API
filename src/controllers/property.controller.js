@@ -20,8 +20,8 @@ export const getProperties = async (req, res, next) => {
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
 
-    const properties = await Property.find().skip(skip).limit(limit);
     const total = await Property.countDocuments();
+    const properties = await Property.find().skip(skip).limit(limit);
 
     res.status(200).json({
       success: true,
