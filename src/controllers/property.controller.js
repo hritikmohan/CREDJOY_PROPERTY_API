@@ -13,22 +13,45 @@ export const createProperty = async (req, res, next) => {
   }
 };
 
-// @desc    Get all properties
-// @route   GET /api/properties
+// @desc    Get all properties with Search and Pagination
+// @route   GET /api/properties?search=query&page=1&limit=10
 export const getProperties = async (req, res, next) => {
   try {
-    await connectDB();
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
+    const search = req.query.search;
 
-    const total = await Property.countDocuments();
-    const properties = await Property.find().skip(skip).limit(limit);
+    // Build the query object
+    let query = {};
+
+    if (search) {
+      const searchRegex = new RegExp(search, 'i'); // 'i' makes it case-insensitive
+      
+      query = {
+        $or: [
+          { projectName: searchRegex },
+          { promoterName: searchRegex },
+          { registrationNumber: searchRegex },
+          { projectDetails: searchRegex }
+        ]
+      };
+    }
+
+    // Execute query with pagination
+    const properties = await Property.find(query).skip(skip).limit(limit);
+    
+    // Get total count based on the specific search query (not just total docs)
+    const total = await Property.countDocuments(query);
 
     res.status(200).json({
       success: true,
       count: properties.length,
-      pagination: { total, page, pages: Math.ceil(total / limit) },
+      pagination: { 
+        total, 
+        page, 
+        pages: Math.ceil(total / limit) 
+      },
       data: properties
     });
   } catch (error) {
