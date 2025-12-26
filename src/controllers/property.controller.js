@@ -17,6 +17,7 @@ export const createProperty = async (req, res, next) => {
 // @route   GET /api/properties?search=query&page=1&limit=10
 export const getProperties = async (req, res, next) => {
   try {
+    await connectDB()
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
