@@ -1,3 +1,4 @@
+import connectDB from '../config/db.js';
 import Property from '../models/Property.js';
 import xlsx from 'xlsx';
 
@@ -16,6 +17,7 @@ export const createProperty = async (req, res, next) => {
 // @route   GET /api/properties
 export const getProperties = async (req, res, next) => {
   try {
+    await connectDB();
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
